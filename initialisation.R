@@ -1,8 +1,10 @@
 #install.packages("ggplot2")
-install.packages("FNN")
+#install.packages("FNN")
+install.packages("psych")
 library(class)
 library(ggplot2)
 library(FNN)
+library(psych)
 
 setwd("C:/Users/Admin/Documents/IowaMoves")
 
@@ -160,18 +162,18 @@ iowa_train_lessHeat$SaleCondition <- factor(iowa_train_lessHeat$SaleCondition, o
 iowa_train_noZone <- iowa_train_lessHeat[, -2]
 
 # make a new table to store the numerics
-iowa_train_numeric <- iowa_train_noZone
+#iowa_train_numeric <- iowa_train_noZone
 
 # make the factors into numerics
-iowa_train_numeric$MSSubClass <- as.numeric(iowa_train_numeric$MSSubClass)
-iowa_train_numeric$Utilities <- as.numeric(iowa_train_numeric$Utilities)
-iowa_train_numeric$OverallQual <- as.numeric(iowa_train_numeric$OverallQual)
-iowa_train_numeric$OverallCond <- as.numeric(iowa_train_numeric$OverallCond)
-iowa_train_numeric$Foundation <- as.numeric(iowa_train_numeric$Foundation)
-iowa_train_numeric$CentralAir <- as.numeric(iowa_train_numeric$CentralAir)
-iowa_train_numeric$Electrical <- as.numeric(iowa_train_numeric$Electrical)
-iowa_train_numeric$Functional <- as.numeric(iowa_train_numeric$Functional)
-iowa_train_numeric$SaleCondition <- as.numeric(iowa_train_numeric$SaleCondition)
+#iowa_train_numeric$MSSubClass <- as.numeric(iowa_train_numeric$MSSubClass)
+#iowa_train_numeric$Utilities <- as.numeric(iowa_train_numeric$Utilities)
+#iowa_train_numeric$OverallQual <- as.numeric(iowa_train_numeric$OverallQual)
+#iowa_train_numeric$OverallCond <- as.numeric(iowa_train_numeric$OverallCond)
+#iowa_train_numeric$Foundation <- as.numeric(iowa_train_numeric$Foundation)
+#iowa_train_numeric$CentralAir <- as.numeric(iowa_train_numeric$CentralAir)
+#iowa_train_numeric$Electrical <- as.numeric(iowa_train_numeric$Electrical)
+#iowa_train_numeric$Functional <- as.numeric(iowa_train_numeric$Functional)
+#iowa_train_numeric$SaleCondition <- as.numeric(iowa_train_numeric$SaleCondition)
 
 #for now, just see the rest as a data frame
 dataset <- as.data.frame(lapply(iowa_train_lessLot, as.integer))
@@ -210,5 +212,48 @@ correlationMatrix6 <- cor(dataset[,51:61])
 iowa_data <- as.data.frame(lapply(iowa_train_noZone, as.integer))
 
 # compare the correlation of certain factors with the sales price??
-cor(iowa_data$MSSubClass, iowa_data$SalePrice) # -0.08428414
+cor(iowa_data$MSSubClass, iowa_data$SalePrice) # -0.08428414 or 0.04290332??
 cor(iowa_data$OverallQual, iowa_data$SalePrice) # 0.7909816
+cor(iowa_data$Utilities, iowa_data$SalePrice) # 0.0143143
+cor(iowa_data$OverallCond, iowa_data$SalePrice) # -0.07785589
+cor(iowa_data$Foundation, iowa_data$SalePrice) # -0.382479
+cor(iowa_data$TotalBsmtSF, iowa_data$SalePrice) # 0.6135806
+
+# copy dataset for regression
+data_reg <- iowa_data
+
+# put the outcome variable into its own object
+sale_price_prediction <- as.data.frame(data_reg[, 19])
+
+# remove the price column from main dataset
+data_reg <- data_reg[, -19]
+
+# scale the variables as they are integers?
+data_reg[, c("MSSubClass", "Utilities", "OverallQual", "OverallCond", "Foundation", "TotalBsmtSF",
+             "CentralAir", "Electrical", "X1stFlrSF", "X2ndFlrSF", "LowQualFinSF", "GrLivArea",
+             "BedroomAbvGr", "TotRmsAbvGrd", "Functional", "Fireplaces", "GarageArea", "SaleCondition", "TotalBathrooms")] <- scale(
+               data_reg[, c("MSSubClass", "Utilities", "OverallQual", "OverallCond", "Foundation", "TotalBsmtSF",
+                            "CentralAir", "Electrical", "X1stFlrSF", "X2ndFlrSF", "LowQualFinSF", "GrLivArea",
+                            "BedroomAbvGr", "TotRmsAbvGrd", "Functional", "Fireplaces", "GarageArea", "SaleCondition", "TotalBathrooms")]
+             )
+
+# split the scaled data into training and test, do a 70:30 split
+set.seed(1234)
+
+# get sample size
+smp_size <- floor(0.70 * nrow(data_reg))
+
+train_ind <- sample(seq_len(nrow(data_reg)), size = smp_size)
+
+# get testing and training data frames
+data_reg_train <- data_reg[train_ind,]
+data_reg_test <- data_reg[-train_ind,]
+
+# split outcome variable
+abs_outcome_train <- sale_price_prediction[train_ind,]
+abs_outcome_train <- sale_price_prediction[-train_ind,]
+
+# get k value
+k_value <- floor(sqrt(nrow(data_reg_train)))
+
+reg_results <- knn.reg(data_reg_train, data_reg_test, abs_outcome_train, k = k_value)
