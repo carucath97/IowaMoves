@@ -1,10 +1,15 @@
 #install.packages("ggplot2")
 #install.packages("FNN")
-install.packages("psych")
+#install.packages("psych")
+required_packages <- c("ggplot2", "FNN", "psych") #Every package your script needs
+new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])] #Get all the ones not already installed
+install.packages(new_packages) #Install all packages not already installed
 library(class)
 library(ggplot2)
 library(FNN)
 library(psych)
+
+
 
 setwd("C:/Users/Admin/Documents/IowaMoves")
 
@@ -15,7 +20,7 @@ RawIowa_train <- read.csv("train.csv", sep = ",")
 Iowa_train_NoId <- RawIowa_train[,-1]
 
 #investigate columns with NA values
-na_records <- is.na(iowa_train$LotFrontage)
+#na_records <- is.na(iowa_train$LotFrontage)
 
 #data[is.na(data$variable)] <- mean(data$variable)
 #                           <- 0
@@ -120,16 +125,16 @@ iowa_train_noPorch$Utilities <- factor(iowa_train_noPorch$Utilities, ordered = T
 iowa_train_noNghbr <- iowa_train_noPorch[, -c(4:6)]
 
 # order type of building
-iowa_train_noNghbr$BldgType <- factor(iowa_train_noPrice$BldgType, ordered = TRUE, levels = c("TwnhsI", "TwnhsE", "Duplx", "2FmCon", "1Fam"))
+iowa_train_noNghbr$BldgType <- factor(iowa_train_noPorch$BldgType, ordered = TRUE, levels = c("TwnhsI", "TwnhsE", "Duplx", "2FmCon", "1Fam"))
 
 # get rid of housestyle as it's redundant (says stories in SubClass)
 iowa_train_noStyle <- iowa_train_noNghbr[, -5]
 
 # order quality
-iowa_train_noStyle$OverallQual <- factor(iowa_train_noPrice$OverallQual, ordered = TRUE, levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+iowa_train_noStyle$OverallQual <- factor(iowa_train_noStyle$OverallQual, ordered = TRUE, levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
 
 # order condition
-iowa_train_noStyle$OverallCond <- factor(iowa_train_noPrice$OverallCond, ordered = TRUE, levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+iowa_train_noStyle$OverallCond <- factor(iowa_train_noStyle$OverallCond, ordered = TRUE, levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
 
 # get rid of building type as NA values have been found (also covered in SubClass)
 iowa_train_noBuilding <- iowa_train_noStyle[, -4]
@@ -161,99 +166,4 @@ iowa_train_lessHeat$SaleCondition <- factor(iowa_train_lessHeat$SaleCondition, o
 # get rid of zoning as it has NA values (and not sure what to change it to)
 iowa_train_noZone <- iowa_train_lessHeat[, -2]
 
-# make a new table to store the numerics
-#iowa_train_numeric <- iowa_train_noZone
-
-# make the factors into numerics
-#iowa_train_numeric$MSSubClass <- as.numeric(iowa_train_numeric$MSSubClass)
-#iowa_train_numeric$Utilities <- as.numeric(iowa_train_numeric$Utilities)
-#iowa_train_numeric$OverallQual <- as.numeric(iowa_train_numeric$OverallQual)
-#iowa_train_numeric$OverallCond <- as.numeric(iowa_train_numeric$OverallCond)
-#iowa_train_numeric$Foundation <- as.numeric(iowa_train_numeric$Foundation)
-#iowa_train_numeric$CentralAir <- as.numeric(iowa_train_numeric$CentralAir)
-#iowa_train_numeric$Electrical <- as.numeric(iowa_train_numeric$Electrical)
-#iowa_train_numeric$Functional <- as.numeric(iowa_train_numeric$Functional)
-#iowa_train_numeric$SaleCondition <- as.numeric(iowa_train_numeric$SaleCondition)
-
-#for now, just see the rest as a data frame
-dataset <- as.data.frame(lapply(iowa_train_lessLot, as.integer))
-
-# need a feature scaling function
-scaling <- function(x) { ((x - min(x)) / (max(x) - min(x))) }
-
-iowa_normalised[, -19] <- as.data.frame(lapply(iowa_train_numeric[, -19], scaling))
-
-# split the date into training and testing -- doing a 60:40 split
-iowa_training <- iowa_normalised[1:876,-19]
-
-iowa_testing <- iowa_normalised[877:1460,-19]
-
-iowa_training_true <- iowa_normalised[1:876,19]
-
-k_value <- floor(sqrt(nrow(iowa_training)))
-
-# use knn.reg (reg=regression)
-iowa_predictions <- knn.reg(iowa_training, iowa_testing, iowa_training_true, k=k_value)
-
-iowa_reference <- iowa_train_noZone[877:1460, 1]
-
-# table results
-prediction_table <- table(iowa_predictions, iowa_reference)
-  
-correlationMatrix <- cor(dataset[,1:8])
-correlationMatrix2 <- cor(dataset[,8:16])
-correlationMatrix3 <- cor(dataset[,16:25])
-correlationMatrix4 <- cor(dataset[,25:40])
-correlationMatrix5 <- cor(dataset[,41:50])
-correlationMatrix6 <- cor(dataset[,51:61])
-#correlationMatrix7 <- cor(dataset[,65:72])
-
-# make a new dataset
-iowa_data <- as.data.frame(lapply(iowa_train_noZone, as.integer))
-
-# compare the correlation of certain factors with the sales price??
-cor(iowa_data$MSSubClass, iowa_data$SalePrice) # -0.08428414 or 0.04290332??
-cor(iowa_data$OverallQual, iowa_data$SalePrice) # 0.7909816
-cor(iowa_data$Utilities, iowa_data$SalePrice) # 0.0143143
-cor(iowa_data$OverallCond, iowa_data$SalePrice) # -0.07785589
-cor(iowa_data$Foundation, iowa_data$SalePrice) # -0.382479
-cor(iowa_data$TotalBsmtSF, iowa_data$SalePrice) # 0.6135806
-
-# copy dataset for regression
-data_reg <- iowa_data
-
-# put the outcome variable into its own object
-sale_price_prediction <- as.data.frame(data_reg[, 19])
-
-# remove the price column from main dataset
-data_reg <- data_reg[, -19]
-
-# scale the variables as they are integers?
-data_reg[, c("MSSubClass", "Utilities", "OverallQual", "OverallCond", "Foundation", "TotalBsmtSF",
-             "CentralAir", "Electrical", "X1stFlrSF", "X2ndFlrSF", "LowQualFinSF", "GrLivArea",
-             "BedroomAbvGr", "TotRmsAbvGrd", "Functional", "Fireplaces", "GarageArea", "SaleCondition", "TotalBathrooms")] <- scale(
-               data_reg[, c("MSSubClass", "Utilities", "OverallQual", "OverallCond", "Foundation", "TotalBsmtSF",
-                            "CentralAir", "Electrical", "X1stFlrSF", "X2ndFlrSF", "LowQualFinSF", "GrLivArea",
-                            "BedroomAbvGr", "TotRmsAbvGrd", "Functional", "Fireplaces", "GarageArea", "SaleCondition", "TotalBathrooms")]
-             )
-
-# split the scaled data into training and test, do a 70:30 split
-set.seed(1234)
-
-# get sample size
-smp_size <- floor(0.70 * nrow(data_reg))
-
-train_ind <- sample(seq_len(nrow(data_reg)), size = smp_size)
-
-# get testing and training data frames
-data_reg_train <- data_reg[train_ind,]
-data_reg_test <- data_reg[-train_ind,]
-
-# split outcome variable
-abs_outcome_train <- sale_price_prediction[train_ind,]
-abs_outcome_train <- sale_price_prediction[-train_ind,]
-
-# get k value
-k_value <- floor(sqrt(nrow(data_reg_train)))
-
-reg_results <- knn.reg(data_reg_train, data_reg_test, abs_outcome_train, k = k_value)
+# go to knn_regression.R or correlation_and_user_input.R for the prediction models
