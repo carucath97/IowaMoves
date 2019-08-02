@@ -41,11 +41,8 @@ stripped_prediction <- as.data.frame(iowa_stripped_reg[8])
 
 iowa_stripped_reg <- iowa_stripped_reg[-8]
 
-iowa_stripped_reg[, c("TotalBsmtSF", "X1stFlrSF", "GrLivArea", 
-                      "TotRmsAbvrd", "GarageArea", "TotalBathrooms")] <- scale(iowa_stripped_reg[, c("TotalBsmtSF", 
-                                                                                                      "X1stFlrSF", "GrLivArea", 
-                                                                                                      "TotRmsAbvrd", "GarageArea", 
-                                                                                                      "TotalBathrooms")])
+# scale the integers, just use column numbers instead of names
+iowa_stripped_reg[, c(3:8)] <- scale(iowa_stripped_reg[, c(3:8)])
 head(iowa_stripped_reg)
 
 MSSubClass <- as.data.frame(dummy.code(iowa_stripped_reg$MSSubClass))
@@ -96,17 +93,20 @@ if(mean_results > 1) {
 print(mean(predictions_outage))
 # the mean result is 0.07032535, why is it different????
 
+# see if fitted method works for established row?
+print(fitted(iowa_stripped_reg))
+
 # now get the user input of these values to predict the price??
 user_input <- function() {
   # take input from users
-  sub_class <- readline(prompt = "Enter the SubClass")
-  qual <- readline(prompt = "Enter the OverallQual - scale 1 to 10")
-  basement_area <- readline(prompt = "Basement Area")
-  area_of_first_floor <- readline(prompt = "Area of First Floor")
-  above_grade_living <- readline(prompt = "Area of living room")
-  total_good_rooms <- readline(prompt = "Total rooms (excluding basement)")
-  total_bathrooms <- readline(prompt = "Total bathrooms (including basement)")
-  garage_area <- readline(prompt = "Area of garage (0 if no garage)")
+  sub_class <- readline(prompt = "Enter the SubClass: ")
+  qual <- readline(prompt = "Enter the OverallQual - scale 1 to 10: ")
+  basement_area <- readline(prompt = "Basement Area: ")
+  area_of_first_floor <- readline(prompt = "Area of First Floor: ")
+  above_grade_living <- readline(prompt = "Area of living room: ")
+  total_good_rooms <- readline(prompt = "Total rooms (excluding basement): ")
+  total_bathrooms <- readline(prompt = "Total bathrooms (including basement): ")
+  garage_area <- readline(prompt = "Area of garage (0 if no garage): ")
   
   # convert integer values into ints
   basement_area <- as.integer(basement_area)
@@ -115,6 +115,23 @@ user_input <- function() {
   total_good_rooms <- as.integer(total_good_rooms)
   total_bathrooms <- as.integer(total_bathrooms)
   garage_area <- as.integer(total_bathrooms)
+  
+  # make into a single rowed data frame
+  single_row <- as.data.frame(sub_class, qual, basement_area, area_of_first_floor, above_grade_living,
+                             total_good_rooms, garage_area, total_bathrooms)
+  #scale the int values
+  single_row[, c(3:8)] <- scale(single_row[, c(3:8)])
+  
+  # turn subclass and qual into dataframes
+  ms_sub_class <- as.data.frame(dummy.code(single_row$sub_class))
+  overall_qual <- as.data.frame(dummy.code(single_row$qual))
+  
+  single_row <- single_row[-c(1:2)]
+  
+  single_row <- cbind(single_row, ms_sub_class, overall_qual)
+  
+  single_row$SalePrice <- fitted(single_row)
+  print(single_row$SalePrice)
 }
 
 
