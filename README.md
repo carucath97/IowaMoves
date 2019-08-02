@@ -1,7 +1,7 @@
 # IowaMoves
 This R code uses knn regression in order to take in the data from train.csv and predict the sale price of the houses listed.
 
---- Instructions for running ---
+# Instructions for running
 The code can simply be run, nothing needs to be uncommented/commented out.
 
 initialisation.R needs to be run first since, as you can tell by its name, it initialises the tables required for the model. knn_regression.R and correlation_and_user_input.R are independent of each other so the order they are run doesn't matter.
