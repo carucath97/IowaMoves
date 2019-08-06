@@ -166,4 +166,16 @@ iowa_train_lessHeat$SaleCondition <- factor(iowa_train_lessHeat$SaleCondition, o
 # get rid of zoning as it has NA values (and not sure what to change it to)
 iowa_train_noZone <- iowa_train_lessHeat[, -2]
 
-# go to knn_regression.R or correlation_and_user_input.R for the prediction models
+# make a new table to store the numerics (useful for correlation matrices)
+iowa_train_numeric <- iowa_train_noZone
+
+# make the factors into numerics
+iowa_train_numeric$MSSubClass <- as.numeric(iowa_train_numeric$MSSubClass)
+iowa_train_numeric$Utilities <- as.numeric(iowa_train_numeric$Utilities)
+iowa_train_numeric$OverallQual <- as.numeric(iowa_train_numeric$OverallQual)
+iowa_train_numeric$OverallCond <- as.numeric(iowa_train_numeric$OverallCond)
+iowa_train_numeric$Foundation <- as.numeric(iowa_train_numeric$Foundation)
+iowa_train_numeric$CentralAir <- as.numeric(iowa_train_numeric$CentralAir)
+iowa_train_numeric$Electrical <- as.numeric(iowa_train_numeric$Electrical)
+iowa_train_numeric$Functional <- as.numeric(iowa_train_numeric$Functional)
+iowa_train_numeric$SaleCondition <- as.numeric(iowa_train_numeric$SaleCondition)
