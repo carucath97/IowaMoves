@@ -179,3 +179,22 @@ iowa_train_numeric$CentralAir <- as.numeric(iowa_train_numeric$CentralAir)
 iowa_train_numeric$Electrical <- as.numeric(iowa_train_numeric$Electrical)
 iowa_train_numeric$Functional <- as.numeric(iowa_train_numeric$Functional)
 iowa_train_numeric$SaleCondition <- as.numeric(iowa_train_numeric$SaleCondition)
+
+
+# this shows the correlation (in a table) of the integer values in the dataset
+# the ones with correlation over 0.5 were: 
+# TotalBsmtSF, X1stFlrSF, GrLivArea, TotRmsAbvrd, GarageArea, TotalBathrooms
+correlationMatrix_a <- cor(iowa_train_noZone[,c(6, 9:14, 16:17, 20, 19)])
+
+# will now use the numeric table created to get correlations for the factors
+# these should be ordered so that the higher numbered factors would indicate a higher house price
+# only OverallQual has a correlation over 0.5
+
+correlationMatrix_b <- cor(iowa_train_numeric[,c(1:5, 7:8, 15, 18, 19)])
+
+# will keep the MSSubClass due to it being something that people would enter
+# also keep OverallQual, TotalBsmtSF, X1stFlrSF, GrLivArea, TotRmsAbvrd, GarageArea, TotalBathrooms
+
+iowa_stripped <- iowa_train_noZone
+
+iowa_stripped <- iowa_stripped[, -c(2, 4:5, 7:8, 10:11, 13, 15:16, 18)]
