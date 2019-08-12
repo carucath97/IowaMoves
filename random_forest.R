@@ -29,8 +29,14 @@ predicted <- predict(forest2, iowa_forest_test)
 forest3 <- randomForest(SalePrice ~ ., data = iowa_fstrain, ntree = 500, mtry = 6, importane = TRUE)
 forest3
 predicted_s <- predict(forest3, iowa_fstest)
+
+valid <- predicted_s - iowa_fstest$SalePrice
+
+valid
+
 plot(predicted_s, iowa_fstest$SalePrice)
 all.equal(predicted_s, iowa_fstest$SalePrice)
+
 
 plot(predicted, iowa_forest_test$SalePrice)
 all.equal(predicted, iowa_forest_test$SalePrice)
@@ -49,7 +55,7 @@ garage_area = 0
 
 single_list<-list(MSSubClass = sub_class, OverallQual = qual, TotalBsmtSF = basement_area, 
                   X1stFlrSF = area_of_first_floor, GrLivArea = above_grade_living,
-                 TotRmsAbvGrd = total_good_rooms, GarageArea = garage_area, TotalBathrooms = total_bathrooms)
+                  TotRmsAbvGrd = total_good_rooms, GarageArea = garage_area, TotalBathrooms = total_bathrooms)
 single_row <- as.data.frame(single_list)
 #have to level data
 single_row$MSSubClass <- factor(single_row$MSSubClass, levels = level(iowa_stripped$MSSubClass))
@@ -68,29 +74,42 @@ plot(predict_price, single_row$Sale_Price)
 user_input <- function() 
 {
   # take input from users
-  sub_class <- readline(prompt = "Enter the SubClass: ")
-  qual <- readline(prompt = "Enter the OverallQual - scale 1 to 10: ")
-  basement_area <- readline(prompt = "Basement Area: ")
-  area_of_first_floor <- readline(prompt = "Area of First Floor: ")
-  above_grade_living <- readline(prompt = "Area of living room: ")
-  total_good_rooms <- readline(prompt = "Total rooms (excluding basement): ")
-  total_bathrooms <- readline(prompt = "Total bathrooms (including basement): ")
-  garage_area <- readline(prompt = "Area of garage (0 if no garage): ")
-  print(1)
+#  sub_class <- readline(prompt = "Enter the SubClass: ")
+#  qual <- readline(prompt = "Enter the OverallQual - scale 1 to 10: ")
+#  basement_area <- readline(prompt = "Basement Area: ")
+#  area_of_first_floor <- readline(prompt = "Area of First Floor: ")
+#  above_grade_living <- readline(prompt = "Area of living room: ")
+#  total_good_rooms <- readline(prompt = "Total rooms (excluding basement): ")
+#  total_bathrooms <- readline(prompt = "Total bathrooms (including basement): ")
+#  garage_area <- readline(prompt = "Area of garage (0 if no garage): ")
+#  print(1)
+  
+  sub_class <- "1-STORY 1946 & NEWER ALL STYLES"
+  qual <- 3
+  basement_area <- 2
+  area_of_first_floor <- 4
+  above_grade_living <- 5
+  total_good_rooms <- 7
+  total_bathrooms <- 9
+  garage_area <- 8
+  
   # make into a single rowed data frame
   ##test
   
   
   
   single_row<-list(sub_class, qual, basement_area, area_of_first_floor, above_grade_living,
-    total_good_rooms, garage_area, total_bathrooms)
+                   total_good_rooms, garage_area, total_bathrooms)
   print(1)
-  single_row <- as.data.frame(sub_class, qual, basement_area, area_of_first_floor, above_grade_living,
-                              total_good_rooms, garage_area, total_bathrooms)
+  single_row <- as.data.frame(single_row)
+  colnames(single_row) <- c('MSSubClass','OverallQual','TotalBsmtSF','X1stFlrSF','GrLivArea','TotRmsAbvGrd',
+                           'GarageArea','TotalBathrooms')
+  
   print(1)
   print(single_row)
   #put in the random forest
   predict_price <- predict(forest3, single_row)
+  
   print(1)
   plot(predict_price, single_row$Sale_Price)
   all.equal(predict_price, single_row$Sale_Price)
@@ -99,7 +118,6 @@ user_input <- function()
   #single_row$SalePrice <- fitted(single_row)
   #print(single_row$SalePrice)
 }
-
 
 
 
