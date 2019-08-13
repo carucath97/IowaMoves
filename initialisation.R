@@ -16,8 +16,9 @@ setwd("C:/Users/Admin/Documents/IowaMoves")
 RawIowa_test <- read.csv("test.csv", sep = ",")
 RawIowa_train <- read.csv("train.csv", sep = ",")
 
+
 #remove id
-Iowa_train_NoId <- RawIowa_train[,-1]
+Iowa_train_NoId <- RawIowa_train[,-c(1)]
 
 #investigate columns with NA values
 #na_records <- is.na(iowa_train$LotFrontage)
@@ -198,3 +199,10 @@ correlationMatrix_b <- cor(iowa_train_numeric[,c(1:5, 7:8, 15, 18, 19)])
 iowa_stripped <- iowa_train_noZone
 
 iowa_stripped <- iowa_stripped[, -c(2, 4:5, 7:8, 10:11, 13, 15:16, 18)]
+
+# make another numeric table for factors
+iowa_stripped_numeric <- iowa_stripped
+
+# make the factors into numerics
+iowa_stripped_numeric$MSSubClass <- as.numeric(iowa_stripped_numeric$MSSubClass)
+iowa_stripped_numeric$OverallQual <- as.numeric(iowa_stripped_numeric$OverallQual)
