@@ -1,19 +1,27 @@
 #install.packages("ggplot2")
 #install.packages("FNN")
 #install.packages("psych")
-required_packages <- c("ggplot2", "FNN", "psych") #Every package your script needs
+#library(DataCleaning)
+required_packages <- c("ggplot2", "FNN", "psych", "devtools") #Every package your script needs
 new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])] #Get all the ones not already installed
 install.packages(new_packages) #Install all packages not already installed
+#devtools::install_github("https://github.com/christophperrins/Documentation-with-R")
 library(class)
 library(ggplot2)
 library(FNN)
 library(psych)
 
 
+devtools::document()
 
+
+#set the working directory of the R package
 setwd("C:/Users/Admin/Documents/IowaMoves")
 
+#read in test file from a csv
 RawIowa_test <- read.csv("test.csv", sep = ",")
+
+#read in training data from the SQL database (TODO)
 RawIowa_train <- read.csv("train.csv", sep = ",")
 
 
@@ -40,6 +48,8 @@ iowa_train_NoMsn <- iowa_train_NoAlley[,-c(24,25)]
 iowa_train_lessBsmt <- iowa_train_NoMsn[,-c(27:30)]
 iowa_train_lessBsmt <- iowa_train_lessBsmt[,-28]
 
+# created this so I could count the NA values in the columns (would check in the termninal)
+# e.g count_na(Electrical) -> 1
 count_na <- function(x) sum(is.na(x))
 
 # as there's only one NA in Electrical, just set it to its most common value (by Subclass)
@@ -73,7 +83,7 @@ iowa_train_noLot <- iowa_train_noLot[, -c(4:5)]
 # get rid of columns between house quality and material quality
 iowa_train_noLot <- iowa_train_noLot[, -c(11:16)]
 
-# just keep total basement area
+# just keep total basement area, get rid of other basement columns due to repetetiveness
 iowa_train_noBsmt <- iowa_train_noLot[, -c(14:16)]
 
 # kitchens above grade is redundant since kitchen quality is also column
@@ -183,7 +193,7 @@ iowa_train_numeric$SaleCondition <- as.numeric(iowa_train_numeric$SaleCondition)
 
 
 # this shows the correlation (in a table) of the integer values in the dataset
-# the ones with correlation over 0.5 were: 
+# the ones with correlation over 0.5 were:
 # TotalBsmtSF, X1stFlrSF, GrLivArea, TotRmsAbvrd, GarageArea, TotalBathrooms
 correlationMatrix_a <- cor(iowa_train_noZone[,c(6, 9:14, 16:17, 20, 19)])
 
@@ -198,9 +208,15 @@ correlationMatrix_b <- cor(iowa_train_numeric[,c(1:5, 7:8, 15, 18, 19)])
 
 iowa_stripped <- iowa_train_noZone
 
+# this is the final version of the table (in original formatting), with nine factors (inc SalePrice)
 iowa_stripped <- iowa_stripped[, -c(2, 4:5, 7:8, 10:11, 13, 15:16, 18)]
 
-# make another numeric table for factors
+# make another numeric table for making prediction models
+# after a lot of modelling, it was found that using factors doesn't
+# work for inputting a new value (as the levels of the factors are different)
+# there is a way to level the factors but simply converting to numerics was easier
+
+# the final numeric version of the table
 iowa_stripped_numeric <- iowa_stripped
 
 # make the factors into numerics
