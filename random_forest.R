@@ -20,7 +20,14 @@ predicted <- predict(random_forest, iowa_forest_test)
 
 plot(predicted, iowa_forest_test$SalePrice)
 
-#now need to make a function getting a pediction with new data
+
+#' This function takes in a single value (that's numeric) for the final criteria.
+#' Once it takes in the value (currently generic values, will be user input)
+#' it will turn it into a single rowed dataframe with column names
+#' that match the column names of the iowa_stripped table (except for sale price)
+#' then use the random forest method model created above to predict
+#' the sale price of that row
+#' @export
 single_input <- function() 
 {
   #make the values numeric (just for prediction stuff)
