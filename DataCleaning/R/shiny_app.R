@@ -2,7 +2,7 @@
 #install.packages("shiny")
 library(shiny)
 options(scipen = 9999)
-ui <- fluidPage(
+ui <- shinyUI(fluidPage(
   titlePanel("Iowa Moves Price Prediction"),
 
   sidebarLayout(
@@ -35,6 +35,7 @@ ui <- fluidPage(
     mainPanel(
       textOutput(outputId = "Predicted"),
       plotOutput(outputId = "PlotID")
+      )
     )
   )
 )
@@ -78,7 +79,7 @@ forest_logic <- function(input) {
   return(predict_price)
 }
 
-server <- function(input, output) {
+server <- shinyServer(function(input, output) {
   output$Predicted <- renderText({
     # round the price since large prices tend to be whole numbers
     paste("Predicted Value of $", round(forest_logic(input), digits = 0))
@@ -88,6 +89,6 @@ server <- function(input, output) {
   output$PlotID <- renderPlot({
     plot(c(1:20), c(1:20))
   })
-}
+})
 
 shinyApp(ui = ui, server = server)
