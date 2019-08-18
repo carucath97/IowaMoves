@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1566150590879.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "475147554",
+    "id" : "450FB488",
+    "lastKnownWriteTime" : 1566150566,
+    "last_content_update" : 1566150566,
+    "path" : "~/DataCleaning/R/server.R",
+    "project_path" : "R/server.R",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
