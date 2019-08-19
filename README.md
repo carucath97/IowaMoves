@@ -3,7 +3,7 @@ This R code uses random forest in order to take in the data from the iowa_moves 
 of the houses listed.
 
 # Instructions for installation
-Download the code from the repository, connect to MySQL table generated from the sql queries. It should then run.
+Download the code from the repository, install the packages (install.packages("packageName")) devtools, FNN, pysch, RMySQL and randomForest. It should then run.
 
 # Instructions on running
 The code can simply be run, nothing needs to be uncommented/commented out. The app can be run from server.R when in RStudio.
@@ -19,4 +19,4 @@ it cleans the tables a bit to be more useful, it creates a random forest using t
 a prediction based on a singular input.
 
 # Summary
-This project is very much a MVP and a WIP at the moment.
+This project is still a WIP at the moment due to difficulties I have been having with the cloud.
